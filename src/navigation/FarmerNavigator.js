@@ -32,6 +32,7 @@ export default function FarmerNavigator() {
         <Stack.Screen name="FarmerProfile" component={FarmerProfileScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="FarmDetails" component={FarmDetailsScreen} />
+        <Stack.Screen name="FarmProfile" component={FarmDetailsScreen} />
         <Stack.Screen name="FarmerSettings" component={FarmerSettingsScreen} />
         <Stack.Screen name="VegetableListing" component={VegetableListingScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />

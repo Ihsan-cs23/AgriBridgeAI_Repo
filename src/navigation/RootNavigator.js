@@ -9,11 +9,22 @@ import RegisterScreen from '../screens/common/RegisterScreen';
 import ForgotPasswordScreen from '../screens/common/ForgotPasswordScreen';
 import RoleSelectionScreen from '../screens/common/RoleSelectionScreen';
 import FarmerNavigator from './FarmerNavigator';
-import ConsumerDashboard from '../screens/consumer/ConsumerDashboard';
+import ConsumerNavigator from './ConsumerNavigator';
 import RiderDashboard from '../screens/rider/RiderDashboard';
 import AdminDashboard from '../screens/admin/AdminDashboard';
 
 const Stack = createNativeStackNavigator();
+
+function ConsumerEntry({ navigation }) {
+  const signOut = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Welcome' }],
+    });
+  };
+
+  return <ConsumerNavigator onLogout={() => signOut()} />;
+}
 
 export default function RootNavigator() {
   return (
@@ -32,7 +43,7 @@ export default function RootNavigator() {
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
       <Stack.Screen name="Farmer" component={FarmerNavigator} />
-      <Stack.Screen name="Consumer" component={ConsumerDashboard} />
+      <Stack.Screen name="Consumer" component={ConsumerEntry} />
       <Stack.Screen name="Rider" component={RiderDashboard} />
       <Stack.Screen name="Admin" component={AdminDashboard} />
     </Stack.Navigator>

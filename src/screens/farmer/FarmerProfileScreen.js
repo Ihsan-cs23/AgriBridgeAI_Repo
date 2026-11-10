@@ -1,193 +1,69 @@
-
 import React from 'react';
-
-import {
-  View,
-  Text,
-  Pressable,
-  Image,
-  Alert,
-} from 'react-native';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-
-import {
-  Screen,
-  TopBar,
-  Eyebrow,
-  Heading,
-  Subheading,
-  Panel,
-  MenuItem,
-  Icon,
-} from '../../components/farmer/FarmerUI';
-
-import { farmerColors as C } from '../../theme/farmerTheme';
+import { Ionicons } from '@expo/vector-icons';
 import { useFarmer } from '../../context/FarmerContext';
+import { palette, radius } from '../../theme/consumerTheme';
+import { PrimaryButton, SectionHeader } from '../../components/consumer/Common';
+import { Divider, FarmerScreen, InfoCard, MenuRow } from '../../components/farmer/FarmerParts';
 
-export default function FarmerProfileScreen({ navigation }) {
+const FARM_MENU = [
+  { icon: 'business', title: 'Farm details', detail: 'Location, land and crop information', screen: 'FarmDetails' },
+  { icon: 'scan', title: 'Detection history', detail: 'Review your previous plant scans', screen: 'DetectionHistory' },
+  { icon: 'leaf', title: 'List vegetables', detail: 'Add produce, prices and available quantity', screen: 'VegetableListing' }
+];
+const APP_MENU = [
+  { icon: 'settings', title: 'Settings', detail: 'Notifications and account preferences', screen: 'FarmerSettings' }
+];
+
+const FarmerProfileScreen = ({ navigation }) => {
   const { profileImageUri, setProfileImageUri } = useFarmer();
 
   const chooseProfileImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert('Photo permission', 'Allow photo access to choose a profile image.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets?.[0]?.uri) {
-      setProfileImageUri(result.assets[0].uri);
-    }
+    if (!permission.granted) return Alert.alert('Photo permission', 'Allow photo access to choose a profile image.');
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
+    if (!result.canceled && result.assets?.[0]?.uri) setProfileImageUri(result.assets[0].uri);
   };
 
+  const renderMenu = (items) => items.map((item, i) => (
+    <View key={item.title}>
+      {i > 0 ? <Divider /> : null}
+      <MenuRow icon={item.icon} title={item.title} detail={item.detail} onPress={() => navigation.navigate(item.screen)} />
+    </View>
+  ));
+
   return (
-    <Screen>
-      <TopBar
-        title="Farmer account"
-        subtitle="PROFILE & PREFERENCES"
-        onBack={() => navigation.goBack()}
-      />
-
-      <Eyebrow>ACCOUNT</Eyebrow>
-
-      <Heading>
-        Your profile
-      </Heading>
-
-      <Subheading>
-        Manage your personal and farm information.
-      </Subheading>
-
-      {/* Profile information */}
-      <Panel style={{
-        marginTop: 22,
-        alignItems: 'center',
-        paddingVertical: 23,
-      }}>
-        <View style={{
-          width: 76,
-          height: 76,
-          borderRadius: 26,
-          backgroundColor: C.forest,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+    <FarmerScreen navigation={navigation} title="Profile" active="Profile" back={false}>
+      <InfoCard style={{ alignItems: 'center', paddingVertical: 24 }}>
+        <View style={s.ring}>
           {profileImageUri ? (
-            <Image
-              source={{ uri: profileImageUri }}
-              style={{ width: '100%', height: '100%', borderRadius: 26 }}
-            />
+            <Image source={{ uri: profileImageUri }} style={s.avatar} />
           ) : (
-            <Icon name="profile" size={36} color={C.lime} />
+            <View style={[s.avatar, s.empty]}><Ionicons name="person" size={46} color={palette.primary} /></View>
           )}
         </View>
+        <Text style={s.name}>Farmer account</Text>
+        <Text style={s.sub}>Add your name and contact details</Text>
+        <PrimaryButton title={profileImageUri ? 'Change photo' : 'Upload profile photo'} icon="camera" small onPress={chooseProfileImage} style={{ marginTop: 16 }} />
+        <PrimaryButton title="Edit account details" icon="create-outline" small variant="soft" onPress={() => navigation.navigate('EditProfile')} style={{ marginTop: 10 }} />
+      </InfoCard>
 
-        <Text style={{
-          color: C.ink,
-          fontSize: 18,
-          fontWeight: '900',
-          marginTop: 13,
-        }}>
-          Farmer account
-        </Text>
+      <SectionHeader title="Farm Management" />
+      <InfoCard style={{ paddingVertical: 4 }}>{renderMenu(FARM_MENU)}</InfoCard>
 
-        <Text style={{
-          color: C.muted,
-          fontSize: 12,
-          marginTop: 4,
-        }}>
-          Add your name and contact details
-        </Text>
-
-        <Pressable
-          onPress={chooseProfileImage}
-          style={{
-            marginTop: 15,
-            backgroundColor: C.sage,
-            borderRadius: 12,
-            paddingHorizontal: 17,
-            paddingVertical: 10,
-          }}
-        >
-          <Text style={{
-            color: C.forest,
-            fontWeight: '800',
-            fontSize: 12,
-          }}>
-            {profileImageUri ? 'Change photo' : 'Upload profile photo'}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => navigation.navigate('EditProfile')}
-          style={{ marginTop: 9, paddingHorizontal: 10, paddingVertical: 5 }}
-        >
-          <Text style={{ color: C.green, fontSize: 11, fontWeight: '800' }}>
-            Edit account details
-          </Text>
-        </Pressable>
-      </Panel>
-
-      {/* Farm management */}
-      <Text style={{
-        color: C.muted,
-        fontSize: 10,
-        fontWeight: '900',
-        letterSpacing: 1.2,
-        marginTop: 26,
-        marginBottom: 7,
-      }}>
-        FARM MANAGEMENT
-      </Text>
-
-      <Panel>
-        <MenuItem
-          icon={<Icon name="farm" size={19} color={C.forest} />}
-          title="Farm details"
-          detail="Location, land and crop information"
-          onPress={() => navigation.navigate('FarmDetails')}
-        />
-
-        <MenuItem
-          icon={<Icon name="scan" size={19} color={C.forest} />}
-          title="Detection history"
-          detail="Review your previous plant scans"
-          onPress={() => navigation.navigate('DetectionHistory')}
-        />
-        <MenuItem
-          icon={<Icon name="leaf" size={19} color={C.forest} />}
-          title="List vegetables"
-          detail="Add produce, prices and available quantity"
-          onPress={() => navigation.navigate('VegetableListing')}
-        />
-      </Panel>
-
-      {/* App settings */}
-      <Text style={{
-        color: C.muted,
-        fontSize: 10,
-        fontWeight: '900',
-        letterSpacing: 1.2,
-        marginTop: 25,
-        marginBottom: 7,
-      }}>
-        APP
-      </Text>
-
-      <Panel>
-        <MenuItem
-          icon={<Icon name="settings" size={19} color={C.forest} />}
-          title="Settings"
-          detail="Notifications and account preferences"
-          onPress={() => navigation.navigate('FarmerSettings')}
-        />
-      </Panel>
-    </Screen>
+      <SectionHeader title="App" />
+      <InfoCard style={{ paddingVertical: 4 }}>{renderMenu(APP_MENU)}</InfoCard>
+    </FarmerScreen>
   );
-}
+};
+
+export default FarmerProfileScreen;
+
+const s = StyleSheet.create({
+  ring: { width: 112, height: 112, borderRadius: 56, borderWidth: 3, borderColor: palette.primaryLight, padding: 3 },
+  avatar: { width: '100%', height: '100%', borderRadius: 52 },
+  empty: { backgroundColor: palette.primaryLight, alignItems: 'center', justifyContent: 'center' },
+  name: { marginTop: 14, fontSize: 21, fontWeight: '800', color: palette.text },
+  sub: { marginTop: 4, fontSize: 13, color: palette.textSecondary }
+});

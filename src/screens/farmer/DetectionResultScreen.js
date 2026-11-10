@@ -1,159 +1,59 @@
-
 import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { palette, radius } from '../../theme/consumerTheme';
+import { PrimaryButton } from '../../components/consumer/Common';
+import { FarmerScreen, InfoCard, Divider } from '../../components/farmer/FarmerParts';
 
-import {
-  View,
-  Text,
-  Image,
-} from 'react-native';
-
-import {
-  Screen,
-  TopBar,
-  Eyebrow,
-  Heading,
-  Subheading,
-  Panel,
-  PrimaryButton,
-  Tag,
-} from '../../components/farmer/FarmerUI';
-
-import { farmerColors as C } from '../../theme/farmerTheme';
-
-export default function DetectionResultScreen({
-  navigation,
-  route,
-}) {
+const DetectionResultScreen = ({ navigation, route }) => {
   const imageUri = route?.params?.imageUri;
+  const rows = [
+    ['Crop detected', 'Not available'],
+    ['Disease detected', 'Not available'],
+    ['Confidence', '—']
+  ];
 
   return (
-    <Screen>
-      <TopBar
-        title="Scan overview"
-        subtitle="DETECTION RESULT"
-        onBack={() => navigation.goBack()}
-      />
+    <FarmerScreen navigation={navigation} title="Scan Result" active="Analytics">
+      {imageUri ? <Image source={{ uri: imageUri }} style={s.preview} resizeMode="cover" /> : null}
 
-      <Eyebrow>IMAGE RECEIVED</Eyebrow>
-
-      <Heading>
-        Your scan is ready.
-      </Heading>
-
-      <Subheading>
-        This is a preview of the result layout.
-        It is not an actual AI diagnosis.
-      </Subheading>
-
-      {imageUri && (
-        <Image
-          source={{ uri: imageUri }}
-          style={{
-            width: '100%',
-            height: 205,
-            borderRadius: 22,
-            marginTop: 20,
-            backgroundColor: C.sage,
-          }}
-          resizeMode="cover"
-        />
-      )}
-
-      <Panel style={{ marginTop: 17 }}>
-        <View style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <Text style={{
-            color: C.muted,
-            fontSize: 11,
-            fontWeight: '800',
-          }}>
-            ANALYSIS STATUS
-          </Text>
-
-          <Tag tone="amber">
-            Demo preview
-          </Tag>
+      <InfoCard>
+        <View style={s.statusRow}>
+          <Text style={s.statusLabel}>Analysis status</Text>
+          <View style={s.tag}><Text style={s.tagText}>Demo preview</Text></View>
         </View>
-
-        <Text style={{
-          color: C.ink,
-          fontSize: 22,
-          fontWeight: '900',
-          marginTop: 15,
-        }}>
-          Prediction unavailable
+        <Text style={s.title}>Prediction unavailable</Text>
+        <Text style={s.text}>
+          Connect your trained vegetable disease detection model or backend API to display the detected crop, disease, confidence score and next steps.
         </Text>
-
-        <Text style={{
-          color: C.muted,
-          fontSize: 13,
-          lineHeight: 20,
-          marginTop: 7,
-        }}>
-          Connect your trained vegetable disease detection
-          model or backend API to display the detected crop,
-          disease, confidence score and next steps.
-        </Text>
-
-        <View style={{
-          height: 1,
-          backgroundColor: C.line,
-          marginVertical: 17,
-        }} />
-
-        {[
-          ['Crop detected', 'Not available'],
-          ['Disease detected', 'Not available'],
-          ['Confidence', '—'],
-        ].map(([label, value]) => (
-          <View
-            key={label}
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginTop: 12,
-            }}
-          >
-            <Text style={{
-              color: C.muted,
-              fontSize: 12,
-            }}>
-              {label}
-            </Text>
-
-            <Text style={{
-              color: C.ink,
-              fontSize: 12,
-              fontWeight: '800',
-            }}>
-              {value}
-            </Text>
+        <View style={{ marginVertical: 14 }}><Divider /></View>
+        {rows.map(([label, value]) => (
+          <View key={label} style={s.dataRow}>
+            <Text style={s.dataLabel}>{label}</Text>
+            <Text style={s.dataValue}>{value}</Text>
           </View>
         ))}
-      </Panel>
+      </InfoCard>
 
-      <View style={{ marginTop: 20 }}>
-        <PrimaryButton
-          title="Scan another plant"
-          onPress={() =>
-            navigation.replace('DiseaseDetection')
-          }
-        />
-      </View>
-
-      <Text style={{
-        color: C.muted,
-        fontSize: 10,
-        lineHeight: 16,
-        marginTop: 13,
-        textAlign: 'center',
-      }}>
-        Do not use this demo preview to make
-        crop-treatment decisions.
+      <PrimaryButton title="Scan another plant" icon="scan" onPress={() => navigation.replace('DiseaseDetection')} style={{ marginTop: 22 }} />
+      <Text style={s.disclaimer}>
+        This is a preview of the result layout, not an actual AI diagnosis. Do not use it to make crop-treatment decisions.
       </Text>
-    </Screen>
+    </FarmerScreen>
   );
-}
+};
+
+export default DetectionResultScreen;
+
+const s = StyleSheet.create({
+  preview: { width: '100%', height: 215, borderRadius: radius.xl, backgroundColor: palette.primaryLight, marginBottom: 16 },
+  statusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  statusLabel: { fontSize: 13, fontWeight: '700', color: palette.textSecondary },
+  tag: { backgroundColor: '#FEF3C7', borderRadius: radius.pill, paddingHorizontal: 12, height: 26, justifyContent: 'center' },
+  tagText: { fontSize: 12, fontWeight: '700', color: '#B45309' },
+  title: { marginTop: 14, fontSize: 21, fontWeight: '800', color: palette.text },
+  text: { marginTop: 8, fontSize: 13.5, lineHeight: 20, color: palette.textSecondary },
+  dataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
+  dataLabel: { fontSize: 14, color: palette.textSecondary },
+  dataValue: { fontSize: 14, fontWeight: '800', color: palette.text },
+  disclaimer: { marginTop: 14, fontSize: 11.5, lineHeight: 17, textAlign: 'center', color: palette.textSecondary }
+});
